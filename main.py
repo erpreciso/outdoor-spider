@@ -1,3 +1,4 @@
+# coding: utf-8
 # Copyright 2014 erpreciso
 #
 #    OUTDOOR-SPIDER app
@@ -34,7 +35,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class MainPage(MainHandler):
     def get(self):
-        self.render("main.html")
+        self.render("test-js.html")
 
     def post(self):
         #current_position = self.request.get("current_position")

@@ -5,6 +5,7 @@
 
 $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
+	$("#run_js").on("click", test);
 });
 
 var map;
@@ -12,6 +13,7 @@ var map_center;
 var directions;
 var distance;
 
+function test(){ alert("hit");};
 
 function create_map(event) {
 	var triggered = $(event.target).attr('id');

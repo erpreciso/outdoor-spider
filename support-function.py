@@ -26,3 +26,4 @@ def list_from_file(file_name):
     f = open(file_name, 'r')
     return [line.strip() for line in f]
     
+print create_html_list("city-list-start",list_from_file("city-list.txt"))
