@@ -14,23 +14,15 @@ def create_html_list(list_id, elements_list):
     html += "</ul>"
     return html
 
-def import_text_file(file_name):
-    """return the content of the file in a string.
+def list_from_file(file_name):
+    """return the list of lines in a file.
 
-    Given a text file name, return a string
-    containing the content of the file.
-
-    """
-    # TODO
-    pass
-
-def create_list_from_string(text):
-    """return a list of words contained in the text.
-
-    Given a string text, returns a list of words contained in the text file.
+    Given a text file name, return a list
+    containing in each element each
+    line of the file.
 
     """
-    # TODO
-    pass
+    assert type(file_name) == str
+    f = open(file_name, 'r')
+    return [line.strip() for line in f]
     
-import_text_file("city-list.txt")
