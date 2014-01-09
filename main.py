@@ -1,19 +1,17 @@
-#!/usr/bin/env python
+# Copyright 2014 erpreciso
 #
-# Copyright 2007 Google Inc.
+#    OUTDOOR-SPIDER app
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# TODO list
+# a) crea file di testo con elenco città di partenza
+# b) main page --> GET visualizza pulsante "importa"
+# c) metodo POST:
+#    1. importa il file di testo
+#    2. stampa ancora il Main ma con la lista in html
+#    3. visualizza tasto "Invia a Maps"
+# d) JavaScript per richiesta a Maps
+
+
 import webapp2
 import jinja2
 import os

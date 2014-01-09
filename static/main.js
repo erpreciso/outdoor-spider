@@ -1,3 +1,8 @@
+//TODO
+//funzione che importa da html con ID lista "start" ed ID lista "end",
+//crea la rchiesta e crea nel DOM una nuova sezione "riultato" sotto forma di 
+//matrice e di lista [[start,end,distanza],[..]]
+
 $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
 });
