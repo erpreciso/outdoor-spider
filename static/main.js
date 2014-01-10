@@ -1,19 +1,48 @@
-//TODO
-//funzione che importa da html con ID lista "start" ed ID lista "end",
-//crea la rchiesta e crea nel DOM una nuova sezione "riultato" sotto forma di 
-//matrice e di lista [[start,end,distanza],[..]]
 
 $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
-	$("#run_js").on("click", test);
+	$("#run_js").on("click", load_cities);
 });
 
 var map;
 var map_center;
 var directions;
 var distance;
+var distance_matrix;
 
-function test(){ alert("hit");};
+function load_cities(){
+	// load the two cities lists in two arrays
+	var cities_origin = new Array();
+	var cities_destination = new Array();
+	$("#city-list-start").children().each(function(){
+		cities_origin.push($(this).text());
+	});
+	$("#city-list-end").children().each(function(){
+		cities_destination.push($(this).text());
+	});
+	// create and send the google maps request, and save result 
+	// in the json 'distance_matrix'
+	var distance_request = new google.maps.DistanceMatrixService();
+	distance_request.getDistanceMatrix({
+								origins: cities_origin,
+								destinations: cities_destination,
+								travelMode: google.maps.TravelMode.DRIVING,
+								}, distance_matrix_callback);
+	
+	// process response, and create HTML containing it
+	alert('hit1');
+}
+
+function distance_matrix_callback(response, status) {
+		if (status == google.maps.DistanceMatrixStatus.OK) {
+			
+			// TODO cosa faccio con la risposta?
+			var origins = response.originAddresses;
+			var destinations = response.destinationAddresses;
+			var distance_matrix = response.rows[0].elements[0].duration.text;
+			}
+			alert(distance_matrix);
+		}
 
 function create_map(event) {
 	var triggered = $(event.target).attr('id');
@@ -110,6 +139,9 @@ function get_directions(start, end) {
 }
 
 function get_distance(start, end) {
+	// send request for distance between two points start and end
+	// the callback function 'distance_callback' store the result 
+	// in the global var 'distance'
     var distance_service = new google.maps.DistanceMatrixService();
     distance_service.getDistanceMatrix(
           {
@@ -118,8 +150,8 @@ function get_distance(start, end) {
             travelMode: google.maps.TravelMode.DRIVING,
           }, distance_callback);
 }
-
 function distance_callback(response, status) {
+	// callback for the get_distance function
     if (status == google.maps.DistanceMatrixStatus.OK) {
         var origins = response.originAddresses;
         var destinations = response.destinationAddresses;
