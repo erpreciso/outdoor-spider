@@ -1,8 +1,9 @@
 
 $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
-	$("#run_js").on("click", load_cities);
-});
+	$("#load_lists").on("click", calc_distance);
+	$("#display_matrix").on("click", display_matrix);
+	});
 
 var map;
 var map_center;
@@ -10,39 +11,69 @@ var directions;
 var distance;
 var distance_matrix;
 
+function display_matrix(){
+	alert(distance_matrix.rows[0].elements[0].distance.text);
+	}
+
+function calc_distance(){
+	
+	// get cities lists
+	var origin = load_cities()[0];
+	var destination = load_cities()[1];
+
+	// create and send the google maps request, calling the callback
+	var distance_request = new google.maps.DistanceMatrixService();
+	distance_request.getDistanceMatrix({
+								origins: origin,
+								destinations: destination,
+								travelMode: google.maps.TravelMode.DRIVING,
+								}, calc_distance_callback);
+	}
+
+function calc_distance_callback(response, status) {
+	if (status == google.maps.DistanceMatrixStatus.OK) {
+		
+		// create the array
+		var origins = response.originAddresses;
+		var destinations = response.destinationAddresses;
+		var result = new Array();
+		for (var i = 0; i < origins.length; i++){
+			for (var j = 0; j < destinations.length; j++){
+				var el = new Array();
+				el[0] = origins[i];
+				el[1] = destinations[j];
+				el[2] = response.rows[i].elements[j].distance.text;
+				result.push(el);
+				}
+			}
+		
+		// create the new DOM list
+		var result_html = $(document.createElement("div")).html("prova");
+		$(result_html).html(result);
+		
+		$("#response").append(result_html);
+		}
+	else {
+		
+		// if the request was not satisfied by google maps
+        alert('Distance was not successfully calculated ' +
+						'for the following reason: ' + status);
+        }
+	}
+
 function load_cities(){
 	// load the two cities lists in two arrays
 	var cities_origin = new Array();
 	var cities_destination = new Array();
 	$("#city-list-start").children().each(function(){
 		cities_origin.push($(this).text());
-	});
+		});
 	$("#city-list-end").children().each(function(){
 		cities_destination.push($(this).text());
-	});
-	// create and send the google maps request, and save result 
-	// in the json 'distance_matrix'
-	var distance_request = new google.maps.DistanceMatrixService();
-	distance_request.getDistanceMatrix({
-								origins: cities_origin,
-								destinations: cities_destination,
-								travelMode: google.maps.TravelMode.DRIVING,
-								}, distance_matrix_callback);
-	
-	// process response, and create HTML containing it
-	alert('hit1');
-}
-
-function distance_matrix_callback(response, status) {
-		if (status == google.maps.DistanceMatrixStatus.OK) {
-			
-			// TODO cosa faccio con la risposta?
-			var origins = response.originAddresses;
-			var destinations = response.destinationAddresses;
-			var distance_matrix = response.rows[0].elements[0].duration.text;
-			}
-			alert(distance_matrix);
-		}
+		});
+	var result = new Array(cities_origin, cities_destination);
+	return result;
+	}
 
 function create_map(event) {
 	var triggered = $(event.target).attr('id');
