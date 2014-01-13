@@ -71,6 +71,17 @@ function calc_distance_callback(response, status) {
 		$(result_html2).attr("name", "dictio");
 		$(result_html2).attr("form", "response");
 		$("#response").append(result_html2);
+		
+		$.aiax({
+			url: '/',
+			type : 'POST',
+			contenttype:'application/json; charset=utf-8',
+			data: response,
+			dataType: 'json'
+		});
+		
+		alert("hit");
+		
 		}
 	else {
 		
