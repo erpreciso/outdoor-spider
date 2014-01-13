@@ -2,7 +2,7 @@
 $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
 	$("#load_lists").on("click", calc_distance);
-	$("#display_matrix").on("click", display_matrix);
+	$("#display_html").on("click", display_html);
 	});
 
 var map;
@@ -11,8 +11,8 @@ var directions;
 var distance;
 var distance_matrix;
 
-function display_matrix(){
-	alert(distance_matrix.rows[0].elements[0].distance.text);
+function display_html(){
+	alert($("body").html());
 	}
 
 function calc_distance(){
@@ -33,7 +33,7 @@ function calc_distance(){
 function calc_distance_callback(response, status) {
 	if (status == google.maps.DistanceMatrixStatus.OK) {
 		
-		// create the array
+		// create the "pairs" array
 		var origins = response.originAddresses;
 		var destinations = response.destinationAddresses;
 		var result = new Array();
@@ -42,16 +42,35 @@ function calc_distance_callback(response, status) {
 				var el = new Array();
 				el[0] = origins[i];
 				el[1] = destinations[j];
-				el[2] = response.rows[i].elements[j].distance.text;
+				el[2] = response.rows[i].elements[j].distance.value;
 				result.push(el);
 				}
 			}
 		
-		// create the new DOM list
-		var result_html = $(document.createElement("div")).html("prova");
-		$(result_html).html(result);
-		
+		// create the dictionary array
+		var dictio = new Array();
+		for (var i = 0; i < origins.length; i++){
+			var el = new Array();
+			el[0] = origins[i];
+			for (var j = 0; j < destinations.length; j++){
+				var el2 = new Array();
+				el2[0] = destinations[j];
+				el2[1] = response.rows[i].elements[j].distance.value;
+				el.push(el2);
+				}
+			dictio.push(el);
+			}
+		// create the new DOM textareas
+		var result_html = $(document.createElement("textarea")).html("pairs");
+		$(result_html).html(JSON.stringify(result));
+		$(result_html).attr("name", "pairs");
+		$(result_html).attr("form", "response");
 		$("#response").append(result_html);
+		var result_html2 = $(document.createElement("textarea")).html("dictio");
+		$(result_html2).html(dictio);
+		$(result_html2).attr("name", "dictio");
+		$(result_html2).attr("form", "response");
+		$("#response").append(result_html2);
 		}
 	else {
 		

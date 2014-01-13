@@ -38,10 +38,21 @@ class MainPage(MainHandler):
         self.render("test-js.html")
 
     def post(self):
-        #current_position = self.request.get("current_position")
-        #self.write("Hai inserito: " + current_position)
-		pass
+        pairs = self.request.get("pairs")
+        pairs = pairs[2:-2]
+        pairs_list = pairs.split('],[')
+        self.write("Hai inserito: " + pairs + " e la lista " + str(pairs_list))
 
+def dict_from_list(input_list):
+	"""return a dict from a parsed list.
+	'input_list' is a fixed and repetitive structure: 
+	[origin, destination, distance, origin, destination, distance, ...]
+	
+	"""
+	
+	
+	
+	
 app = webapp2.WSGIApplication([
     ('/', MainPage)
 ], debug=True)
