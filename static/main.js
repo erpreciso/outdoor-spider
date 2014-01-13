@@ -105,6 +105,8 @@ function load_cities(){
 	return result;
 	}
 
+// all code below is to visualize the map, so need to be cleaned
+
 function create_map(event) {
 	var triggered = $(event.target).attr('id');
     var display_map = false;

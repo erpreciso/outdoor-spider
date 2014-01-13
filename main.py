@@ -3,14 +3,17 @@
 #
 #    OUTDOOR-SPIDER app
 #
-# TODO list
-# a) crea file di testo con elenco città di partenza
-# b) main page --> GET visualizza pulsante "importa"
-# c) metodo POST:
-#    1. importa il file di testo
-#    2. stampa ancora il Main ma con la lista in html
-#    3. visualizza tasto "Invia a Maps"
-# d) JavaScript per richiesta a Maps
+
+#TODO
+#fatto: ottenuta risposta dal server con matrice di città e distanze
+#goal: scrivere i risultati sotto forma di lista, o dizionario, in un file di testo
+#steps
+#1. avendo in JS la risposta, inviarla con aiax al server sotto forma di JSON
+#2. processarla con Python, e scrivere il file di testo
+
+#poi... :
+#visualizzare matrice delle distanze su richiesta
+#visualizzare la ragnatela su Google Maps
 
 
 import webapp2
@@ -38,14 +41,8 @@ class MainPage(MainHandler):
         self.render("test-js.html")
 
     def post(self):
-        pairs = self.request.get("pairs")
-        pairs = pairs[2:-2]
-        pairs_list = pairs.split('],[')
-        self.write("Hai inserito: " + pairs + " e la lista " + str(pairs_list))
+        pass
 
-
-	
-	
 app = webapp2.WSGIApplication([
     ('/', MainPage)
 ], debug=True)

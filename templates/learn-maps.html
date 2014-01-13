@@ -1,0 +1,37 @@
+<!--
+   main.html
+   
+   Copyright 2013 erpreciso <erpreciso@ERPRECISO-BASE>  
+-->
+
+<!DOCTYPE html>
+
+<head>
+	<title>distance-spider</title>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans">
+	<link type="text/css" rel="stylesheet" href="/static/main.css" />
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAcL3GY_81kL6edpJ6zRwEu5Qpy0DqhGUw&sensor=false">
+    </script>
+	<script src="/static/main.js"></script>
+</head>
+
+<body>
+	<div>
+		<h1 id="title">Distance Spider</h1>
+	</div>
+	<div id="user">
+        <button type="button" class="create_map" id="display_default_map">display the DEFAULT map</button>
+        <input type="text" id="user_lat" placeholder="enter latitude" />
+        <input type="text" id="user_lng" placeholder="enter longitude" />
+        <button type="button" class="create_map" id="display_coordinates_map">display the custom map based on the coordinates</button>
+        <input type="text" id="user_address" placeholder="enter address" />		
+		<button type="button" class="create_map" id="display_address_map">display the custom map based on the address</button>
+		<input type="text" id="user_direction_address_1" placeholder="enter first address" />
+        <input type="text" id="user_direction_address_2" placeholder="enter second address" />
+        <button type="button" class="create_map" id="display_directions_map">get directions</button>
+	</div>
+	<div id="map-canvas"/>
+</body>
+</html>
