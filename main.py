@@ -38,11 +38,13 @@ class MainHandler(webapp2.RequestHandler):
 
 class MainPage(MainHandler):
     def get(self):
-        self.render("test-js.html")
+        self.render("learn-js.html")
 
+class PostPage(MainHandler):
     def post(self):
-        pass
+        self.write("ricevuto")
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/dest', PostPage)
 ], debug=True)

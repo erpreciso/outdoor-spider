@@ -3,13 +3,28 @@ $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
 	$("#load_lists").on("click", calc_distance);
 	$("#display_html").on("click", display_html);
+	$("#response").submit(function(event){
+		event.preventDefault();
+		alert( "Handler for .submit() called." );
+		var posting = $.post("/dest", test_json);
+		posting.done(function(data){
+			alert("ricevuto");
+		});
+	});
 	});
 
-var map;
-var map_center;
-var directions;
-var distance;
-var distance_matrix;
+
+
+
+
+
+//data = { name: "John", time: "2pm" };
+//function send_aiax(){
+	//$.post("/", data).done(function(data){
+		//alert("Data Loaded: " + data);});
+	//alert("hit");
+//}
+
 
 function display_html(){
 	alert($("body").html());
@@ -106,6 +121,11 @@ function load_cities(){
 	}
 
 // all code below is to visualize the map, so need to be cleaned
+
+var map;
+var map_center;
+var directions;
+var distance;
 
 function create_map(event) {
 	var triggered = $(event.target).attr('id');
@@ -241,4 +261,74 @@ function set_mapcenter_from_address(address) {
 
 function set_mapcenter_from_values(latitude, longitude) {
     map_center = new google.maps.LatLng(latitude, longitude)
+}
+
+
+test_json = {
+   "results" : [
+      {
+         "address_components" : [
+            {
+               "long_name" : "21",
+               "short_name" : "21",
+               "types" : [ "street_number" ]
+            },
+            {
+               "long_name" : "Via Magenta",
+               "short_name" : "Via Magenta",
+               "types" : [ "route" ]
+            },
+            {
+               "long_name" : "Busto Arsizio",
+               "short_name" : "Busto Arsizio",
+               "types" : [ "locality", "political" ]
+            },
+            {
+               "long_name" : "Busto Arsizio",
+               "short_name" : "Busto Arsizio",
+               "types" : [ "administrative_area_level_3", "political" ]
+            },
+            {
+               "long_name" : "Varese",
+               "short_name" : "VA",
+               "types" : [ "administrative_area_level_2", "political" ]
+            },
+            {
+               "long_name" : "Lombardy",
+               "short_name" : "Lombardy",
+               "types" : [ "administrative_area_level_1", "political" ]
+            },
+            {
+               "long_name" : "Italy",
+               "short_name" : "IT",
+               "types" : [ "country", "political" ]
+            },
+            {
+               "long_name" : "21052",
+               "short_name" : "21052",
+               "types" : [ "postal_code" ]
+            }
+         ],
+         "formatted_address" : "Via Magenta, 21, 21052 Busto Arsizio Varese, Italy",
+         "geometry" : {
+            "location" : {
+               "lat" : 45.6067461,
+               "lng" : 8.8464537
+            },
+            "location_type" : "ROOFTOP",
+            "viewport" : {
+               "northeast" : {
+                  "lat" : 45.60809508029149,
+                  "lng" : 8.847802680291503
+               },
+               "southwest" : {
+                  "lat" : 45.60539711970849,
+                  "lng" : 8.845104719708498
+               }
+            }
+         },
+         "types" : [ "street_address" ]
+      }
+   ],
+   "status" : "OK"
 }
