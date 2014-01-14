@@ -4,7 +4,55 @@
     <title> Hello </title>
 	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script>
-	var data={"name":"Hola"};
+	var data =  {
+  "origin_addresses": [ "Greenwich, Greater London, UK", "13 Great Carleton Square, Edinburgh, City of Edinburgh EH16 4, UK" ],
+  "destination_addresses": [ "Stockholm County, Sweden", "Dlouhá 609/2, 110 00 Praha-Staré Město, Česká republika" ],
+  "rows": [ {
+    "elements": [ {
+      "status": "OK",
+      "duration": {
+        "value": 70778,
+        "text": "19 hours 40 mins"
+      },
+      "distance": {
+        "value": 1887508,
+        "text": "1173 mi"
+      }
+    }, {
+      "status": "OK",
+      "duration": {
+        "value": 44476,
+        "text": "12 hours 21 mins"
+      },
+      "distance": {
+        "value": 1262780,
+        "text": "785 mi"
+      }
+    } ]
+  }, {
+    "elements": [ {
+      "status": "OK",
+      "duration": {
+        "value": 96000,
+        "text": "1 day 3 hours"
+      },
+      "distance": {
+        "value": 2566737,
+        "text": "1595 mi"
+      }
+    }, {
+      "status": "OK",
+      "duration": {
+        "value": 69698,
+        "text": "19 hours 22 mins"
+      },
+      "distance": {
+        "value": 1942009,
+        "text": "1207 mi"
+      }
+    } ]
+  } ]
+};
 	$(document).ready(function(){
 		$('#subbut').click(function(){
 			$.ajax({
@@ -14,7 +62,7 @@
 			 data: data,
 			 dataType: 'json',
 			 success: function(data,status,x){
-			    alert("Data: " + data.name +", status: "+status);
+			    alert("status: " + status);
 			  }
 			 });
 		 });

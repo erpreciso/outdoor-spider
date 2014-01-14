@@ -47,12 +47,24 @@ class LearnPage(MainHandler):
 
 class LearnPostPage(MainHandler):
     def post(self):
-        t=self.request.get('name')
-        output={'name':t+" duck"}
-        output=json.dumps(output)
-        logging.info(output)
-        self.response.headers = {'Content-Type': 'application/json; charset=utf-8'}
-        self.response.out.write(output)
+		logging.info(self.request.arguments())
+		logging.info(type(self.request.get("rows")))
+		t = json.loads(self.request.get("rows"))
+		logging.info(type(t))
+		#~ for arg in self.request.arguments():
+			#~ logging.info(arg)
+        #~ jstatus = self.request.get('status')
+        #~ jresult = json.load(self.request.get('results'))
+        #~ logging.info(str(jresult))
+        #~ for element in jresult:
+			#~ logging.info(element.address_components)
+        #~ 
+        #~ output={'name':t+" duck"}
+        #~ 
+        #~ output=json.dumps(output)
+        #~ logging.info(output)
+        #~ self.response.headers = {'Content-Type': 'application/json; charset=utf-8'}
+        #~ self.response.out.write(output)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
