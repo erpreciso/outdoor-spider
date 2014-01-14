@@ -1,0 +1,30 @@
+
+<html>
+    <head>
+    <title> Hello </title>
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script>
+	var data={"name":"Hola"};
+	$(document).ready(function(){
+		$('#subbut').click(function(){
+			$.ajax({
+			
+			 url: '/learn_post',
+			 type: 'POST',
+			 data: data,
+			 dataType: 'json',
+			 success: function(data,status,x){
+			    alert("Data: " + data.name +", status: "+status);
+			  }
+			 });
+		 });
+	 });
+	 </script>
+ </head>
+ <body>
+	 <form>
+		 <input type="button" id="subbut" value = "Go">
+	 </form>
+	 <div id="success"> </div>
+ </body>
+ </html>

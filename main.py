@@ -20,6 +20,7 @@ import webapp2
 import jinja2
 import os
 import json, urllib
+import logging
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -40,11 +41,21 @@ class MainPage(MainHandler):
     def get(self):
         self.render("learn-js.html")
 
-class PostPage(MainHandler):
+class LearnPage(MainHandler):
+    def get(self):
+        self.render("learn.html")
+
+class LearnPostPage(MainHandler):
     def post(self):
-        self.write("ricevuto")
+        t=self.request.get('name')
+        output={'name':t+" duck"}
+        output=json.dumps(output)
+        logging.info(output)
+        self.response.headers = {'Content-Type': 'application/json; charset=utf-8'}
+        self.response.out.write(output)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/dest', PostPage)
+    ('/learn', LearnPage),
+    ('/learn_post', LearnPostPage),
 ], debug=True)

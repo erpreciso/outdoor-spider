@@ -3,28 +3,7 @@ $(window).ready(function(){
 	$("button.create_map").on("click", create_map);
 	$("#load_lists").on("click", calc_distance);
 	$("#display_html").on("click", display_html);
-	$("#response").submit(function(event){
-		event.preventDefault();
-		alert( "Handler for .submit() called." );
-		var posting = $.post("/dest", test_json);
-		posting.done(function(data){
-			alert("ricevuto");
-		});
 	});
-	});
-
-
-
-
-
-
-//data = { name: "John", time: "2pm" };
-//function send_aiax(){
-	//$.post("/", data).done(function(data){
-		//alert("Data Loaded: " + data);});
-	//alert("hit");
-//}
-
 
 function display_html(){
 	alert($("body").html());
@@ -86,17 +65,6 @@ function calc_distance_callback(response, status) {
 		$(result_html2).attr("name", "dictio");
 		$(result_html2).attr("form", "response");
 		$("#response").append(result_html2);
-		
-		$.aiax({
-			url: '/',
-			type : 'POST',
-			contenttype:'application/json; charset=utf-8',
-			data: response,
-			dataType: 'json'
-		});
-		
-		alert("hit");
-		
 		}
 	else {
 		
