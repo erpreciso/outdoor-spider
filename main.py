@@ -9,7 +9,7 @@
 #goal: scrivere i risultati sotto forma di lista, o dizionario, in un file di testo
 #steps
 #1. avendo in JS la risposta, inviarla con aiax al server sotto forma di JSON
-#2. processarla con Python, e scrivere il file di testo
+#2. processarla con Python, e scrivere nel blobstore
 
 #poi... :
 #visualizzare matrice delle distanze su richiesta
@@ -21,10 +21,15 @@ import jinja2
 import os
 import json, urllib
 import logging
+from google.appengine.ext import ndb, blobstore
+from google.appengine.ext.webapp import blobstore_handlers
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 		autoescape = True)
+
+class JsonObj(ndb.Model):
+	data = ndb.JsonProperty()
 
 class MainHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -49,6 +54,11 @@ class LearnPostPage(MainHandler):
     def post(self):
 		t = self.request.body
 		js = json.loads(t)	#js is a dict
+		obj = JsonObj(data=js)
+		obj.put()
+		q = JsonObj.query()
+		estr = q.get()
+		logging.info(type(estr.data))
 
 
 app = webapp2.WSGIApplication([

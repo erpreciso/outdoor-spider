@@ -25,6 +25,17 @@ def list_from_file(file_name):
     assert type(file_name) == str
     f = open(file_name, 'r')
     return [line.strip() for line in f]
+
+def write_row_to_file(row, file_name):
+    assert type(file_name) == str
+    assert type(row) == str
+    f = open(file_name, 'a')
+    f.write(row + '\n')
+    
+def write_json_to_file(jso, file_name):
+    assert type(file_name) == str
+    f = open(file_name, 'w')
+    json.dump(jso, f)
     
 # print create_html_list("city-list-start",list_from_file("city-list.txt"))
 
