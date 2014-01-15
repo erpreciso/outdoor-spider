@@ -4,17 +4,33 @@
 #    OUTDOOR-SPIDER app
 #
 
-#TODO
-#fatto: ottenuta risposta dal server con matrice di città e distanze
-#goal: scrivere i risultati sotto forma di lista, o dizionario, in un file di testo
-#steps
-#1. avendo in JS la risposta, inviarla con aiax al server sotto forma di JSON
-#2. processarla con Python, e scrivere nel blobstore
+TODO = """
+GET '/'
+1. PY carica text file - "START" e poi lista di città, "END" e poi 
+   lista di città
+  a. funzione che importa la lista, e poi la splitta nelle due usando la 
+     parola chiave
+2. stampa la pagina web inserendo un oggetto json nell'html tramite 
+   l'attributo 'data-', trasformando le liste in liste html leggibili e con 
+   un pulsante "GO"
+   a. funzione che trasforma la lista in oggetto json
+   b. funzione che crea il codice html contenente l'attributo 'data'
+   c. jinja2 templates struttura, intestazioni, dati
+3. JS carica l'oggetto json (o la lista html) e manda la richiesta a Google 
+   Maps
+   a. Google ritorna un oggetto json come risposta
+   b. l'oggetto viene inviato come POST a '/get_distance_matrix', e stampato 
+      in html come conoscenza
+POST '/get_distance_matrix'
+4. PY carica il dato arrivato col POST in un oggetto json, e lo carica in 
+   memoria
+   a. se è il primo, lo scrive nel blobstore
+   b. altrimenti, scarica da blobstore (o da memcache), aggiunge i nuovi dati 
+      e risalva in memoria
 
-#poi... :
-#visualizzare matrice delle distanze su richiesta
-#visualizzare la ragnatela su Google Maps
-
+TODO interfaccia utente per interrogare il blobstore, visualizzando poi la 
+     mappa con la ragnatela, la matrice delle distanze etc.
+"""
 
 import webapp2
 import jinja2
