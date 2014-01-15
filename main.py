@@ -60,7 +60,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class MainPage(MainHandler):
     def get(self):
-        self.render("learn-js.html")
+        self.render("pagebody.html")
 
 class LearnPage(MainHandler):
     def get(self):
