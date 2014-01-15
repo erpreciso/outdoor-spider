@@ -59,19 +59,22 @@
 			
 			 url: '/learn_post',
 			 type: 'POST',
-			 data: data,
+			 data: JSON.stringify(data),
+			 contentType: 'application/json; charset=UTF-8',
 			 dataType: 'json',
 			 success: function(data,status,x){
 			    alert("status: " + status);
 			  }
 			 });
 		 });
+		 $("#subbet").on("click",function(){ alert(data.origin_addresses);});
 	 });
 	 </script>
  </head>
  <body>
 	 <form>
 		 <input type="button" id="subbut" value = "Go">
+		 <input type="button" id="subbet" value = "Go">
 	 </form>
 	 <div id="success"> </div>
  </body>
