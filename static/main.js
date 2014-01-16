@@ -24,67 +24,21 @@ function calc_distance(){
 
 function calc_distance_callback(response, status) {
 	if (status == google.maps.DistanceMatrixStatus.OK) {
-		
-		// create the "pairs" array
-		var origins = response.originAddresses;
-		var destinations = response.destinationAddresses;
-		var result = new Array();
-		for (var i = 0; i < origins.length; i++){
-			for (var j = 0; j < destinations.length; j++){
-				var el = new Array();
-				el[0] = origins[i];
-				el[1] = destinations[j];
-				el[2] = response.rows[i].elements[j].distance.value;
-				result.push(el);
-				}
-			}
-		
-		// create the dictionary array
-		var dictio = new Array();
-		for (var i = 0; i < origins.length; i++){
-			var el = new Array();
-			el[0] = origins[i];
-			for (var j = 0; j < destinations.length; j++){
-				var el2 = new Array();
-				el2[0] = destinations[j];
-				el2[1] = response.rows[i].elements[j].distance.value;
-				el.push(el2);
-				}
-			dictio.push(el);
-			}
-		// create the new DOM textareas
-		var result_html = $(document.createElement("textarea")).html("pairs");
-		$(result_html).html(JSON.stringify(result));
-		$(result_html).attr("name", "pairs");
-		$(result_html).attr("form", "response");
-		$("body").append(result_html);
-		var result_html2 = $(document.createElement("textarea")).html("dictio");
-		$(result_html2).html(dictio);
-		$(result_html2).attr("name", "dictio");
-		$(result_html2).attr("form", "response");
-		$("body").append(result_html2);
-		}
+		// push the response to the app engine
+		$.ajax({
+			url: '/post_distance',
+			type: 'POST',
+			data: JSON.stringify(response),
+			contentType: 'application/json; charset=UTF-8',
+			dataType: 'json',
+		});
+	}
 	else {
-		
 		// if the request was not satisfied by google maps
         alert('Distance was not successfully calculated ' +
 						'for the following reason: ' + status);
-        }
-	}
-
-//~ function load_cities(){
-	//~ // load the two cities lists in two arrays
-	//~ var cities_origin = new Array();
-	//~ var cities_destination = new Array();
-	//~ $("#city-list-start").children().each(function(){
-		//~ cities_origin.push($(this).text());
-		//~ });
-	//~ $("#city-list-end").children().each(function(){
-		//~ cities_destination.push($(this).text());
-		//~ });
-	//~ var result = new Array(cities_origin, cities_destination);
-	//~ return result;
-	//~ }
+    }
+}
 
 // all code below is to visualize the map, so need to be cleaned
 
@@ -230,7 +184,7 @@ function set_mapcenter_from_values(latitude, longitude) {
 }
 
 
-test_json = {
+test_geocoding = {
    "results" : [
       {
          "address_components" : [

@@ -1,8 +1,6 @@
 START
 Milano
-Torino
-Busto Arsizio
 END
 Trento
 Genova
-L'Aquila
+
