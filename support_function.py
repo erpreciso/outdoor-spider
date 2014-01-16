@@ -19,14 +19,16 @@ def list_from_file(file_name):
 
     Given a text file name, return a list
     containing in each element each
-    line of the file.
+    line of the file, escaping single quotes.
 
     """
-    assert type(file_name) == str
+    import os
+    assert type(file_name) == str    
+    assert os.stat(file_name).st_size > 0  # file empty
     f = open(file_name, 'r')
-    return [line.strip() for line in f]
+    return [line.strip().replace("'", "&#39;") for line in f]
 
-def split_city_lists(ls):
+def split_city_list(ls):
     """return two city lists, origin and end.
 
     Given a list, it returns the two lists using two
@@ -34,14 +36,21 @@ def split_city_lists(ls):
 
     """
     assert type(ls) == list
-    key_start = 'START'
-    key_end = 'END'
+    key_start, key_end = 'START', 'END'
+    assert key_start in ls
     assert ls[0] == key_start
-    i_end = ls.index(key_end)
-    
+    assert key_end in ls
+    index_end = ls.index(key_end)
+    assert index_end > 1
+    assert index_end < len(ls) -1
+    origins = [x for x in ls[1:index_end] if x != '']
+    destinations = [x for x in ls[index_end + 1:] if x != '']
+    assert len(origins) > 0
+    assert len(destinations) > 0
+    return origins, destinations
     
 
-print list_from_file("city-list.txt")
+print split_city_list(list_from_file("city-list.txt"))
 
 def write_row_to_file(row, file_name):
     assert type(file_name) == str

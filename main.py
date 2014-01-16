@@ -35,18 +35,26 @@ TODO interfaccia utente per interrogare il blobstore, visualizzando poi la
 import webapp2
 import jinja2
 import os
-import json, urllib
+import json
+import urllib
 import logging
+import support_function as m
 from google.appengine.ext import ndb, blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-		autoescape = True)
+        autoescape = True)
 
 class JsonObj(ndb.Model):
-	data = ndb.JsonProperty()
+    data = ndb.JsonProperty()
 
+def json_city_lists():
+    f = "city-list.txt"
+    origins, destinations = m.split_city_list(m.list_from_file(f))
+    j = json.dumps({"origins" : origins, "destinations" : destinations})
+    return j
+    
 class MainHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -60,7 +68,8 @@ class MainHandler(webapp2.RequestHandler):
 
 class MainPage(MainHandler):
     def get(self):
-        self.render("pagebody.html")
+        
+        self.render("pagebody.html", json_data = json_city_lists())
 
 class LearnPage(MainHandler):
     def get(self):
@@ -68,13 +77,13 @@ class LearnPage(MainHandler):
 
 class LearnPostPage(MainHandler):
     def post(self):
-		t = self.request.body
-		js = json.loads(t)	#js is a dict
-		obj = JsonObj(data=js)
-		obj.put()
-		q = JsonObj.query()
-		estr = q.get()
-		logging.info(type(estr.data))
+        t = self.request.body
+        js = json.loads(t)  #js is a dict
+        obj = JsonObj(data=js)
+        obj.put()
+        q = JsonObj.query()
+        estr = q.get()
+        logging.info(type(estr.data))
 
 
 app = webapp2.WSGIApplication([

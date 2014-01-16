@@ -5,3 +5,4 @@ Busto Arsizio
 END
 Trento
 Genova
+L'Aquila

@@ -1,25 +1,23 @@
 
 $(window).ready(function(){
-	$("button.create_map").on("click", create_map);
-	$("#load_lists").on("click", calc_distance);
 	$("#display_html").on("click", display_html);
+	$("#go_distance").on("click", calc_distance);
 	});
+
 
 function display_html(){
 	alert($("body").html());
 	}
 
 function calc_distance(){
-	
-	// get cities lists
-	var origin = load_cities()[0];
-	var destination = load_cities()[1];
+	// extract json from html
+	var js = $("#json").data("json");
 
 	// create and send the google maps request, calling the callback
 	var distance_request = new google.maps.DistanceMatrixService();
 	distance_request.getDistanceMatrix({
-								origins: origin,
-								destinations: destination,
+								origins: js.origins,
+								destinations: js.destinations,
 								travelMode: google.maps.TravelMode.DRIVING,
 								}, calc_distance_callback);
 	}
@@ -59,12 +57,12 @@ function calc_distance_callback(response, status) {
 		$(result_html).html(JSON.stringify(result));
 		$(result_html).attr("name", "pairs");
 		$(result_html).attr("form", "response");
-		$("#response").append(result_html);
+		$("body").append(result_html);
 		var result_html2 = $(document.createElement("textarea")).html("dictio");
 		$(result_html2).html(dictio);
 		$(result_html2).attr("name", "dictio");
 		$(result_html2).attr("form", "response");
-		$("#response").append(result_html2);
+		$("body").append(result_html2);
 		}
 	else {
 		
@@ -74,19 +72,19 @@ function calc_distance_callback(response, status) {
         }
 	}
 
-function load_cities(){
-	// load the two cities lists in two arrays
-	var cities_origin = new Array();
-	var cities_destination = new Array();
-	$("#city-list-start").children().each(function(){
-		cities_origin.push($(this).text());
-		});
-	$("#city-list-end").children().each(function(){
-		cities_destination.push($(this).text());
-		});
-	var result = new Array(cities_origin, cities_destination);
-	return result;
-	}
+//~ function load_cities(){
+	//~ // load the two cities lists in two arrays
+	//~ var cities_origin = new Array();
+	//~ var cities_destination = new Array();
+	//~ $("#city-list-start").children().each(function(){
+		//~ cities_origin.push($(this).text());
+		//~ });
+	//~ $("#city-list-end").children().each(function(){
+		//~ cities_destination.push($(this).text());
+		//~ });
+	//~ var result = new Array(cities_origin, cities_destination);
+	//~ return result;
+	//~ }
 
 // all code below is to visualize the map, so need to be cleaned
 
