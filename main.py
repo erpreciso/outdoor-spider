@@ -26,9 +26,18 @@ DONE
     POST '/get_distance_matrix'
     4. PY carica il dato arrivato col POST in un oggetto json, e lo carica in 
        memoria nel blobstore
+PRIO 1
+TODO crea funzione che prende quanto inserito dall'utente, e crea richiesta 
+    ajax quando l'user schiaccia GO, che interroga il blobstore
 
+PRIO 2
 TODO per ogni città della lista, inviare la richiesta per il geocoding e 
      salvare anche questi in blobstore
+     
+TODO migliora le scritture nel blobstore
+     -- implementa memcache
+     -- evita di scrivere duplicati
+     
 TODO interfaccia utente per interrogare il blobstore, visualizzando poi la 
      mappa con la ragnatela, la matrice delle distanze etc.
 """
@@ -84,7 +93,11 @@ class SpiderPage(MainHandler):
 
 class UserPage(MainHandler):
     def get(self):
-        data = get_origins_from_objects(get_objects_from_blobstore(PointPair))
+        objs = get_objects_from_blobstore(PointPair)
+        if objs is not None:
+            data = get_origins_from_objects(objs)
+        else:
+            data = []
         self.render(
                     "userbody.html",
                     json_data = transform_list_in_json("origins", data),
@@ -110,6 +123,7 @@ class PostDistance(MainHandler):
                 p.duration_value = js['rows'][i]['elements'][j]['duration']['value']
                 p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
                 p.put()
+        self.redirect('/user')
 
 def get_objects_from_blobstore(clss):
     """return list of objects in blobstore, or none.
