@@ -39,6 +39,7 @@ import os
 import json
 import urllib
 import logging
+import re
 import support_function as m
 from google.appengine.ext import ndb, blobstore
 from google.appengine.ext.webapp import blobstore_handlers
@@ -73,10 +74,21 @@ class MainHandler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
-class MainPage(MainHandler):
+class SpiderPage(MainHandler):
     def get(self):
-        self.render("pagebody.html", json_data = json_city_lists())
+        self.render(
+                   "spiderbody.html",
+                   json_data = json_city_lists(),
+                   js_link = "main",
+                   )
 
+class UserPage(MainHandler):
+    def get(self):
+        self.render(
+                    "userbody.html",
+                    json_data = start_list(),
+                    js_link = "user",
+                    )
 class PostDistance(MainHandler):
     def post(self):
         
@@ -98,6 +110,13 @@ class PostDistance(MainHandler):
                 p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
                 p.put()
 
+def start_list():
+    q = PointPair.query()
+    if q.get():
+        return [x for x in q]
+    else:
+        return False
+
 JSO = """
 {
     u'originAddresses': [u'Milan, Italy'],
@@ -108,7 +127,9 @@ JSO = """
             {u'status': u'OK', u'duration': {u'text': u'1 hour 46 mins', u'value': 6346}, u'distance': {u'text': u'147 km', u'value': 146658}}
         ]}]
 }"""
+
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
+    ('/spider', SpiderPage),
     ('/post_distance', PostDistance),
+    ('/user', UserPage),
 ], debug=True)

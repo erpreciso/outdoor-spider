@@ -6,9 +6,13 @@
 	<script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAcL3GY_81kL6edpJ6zRwEu5Qpy0DqhGUw&sensor=false">
     </script>
-	<script src="/static/main.js"></script>
+	<script src="/static/{{js_link}}.js"></script>
 </head>
 <body>
+	<button id="display_html">display html</button>
+	<a href="/spider">Spider</a>
+	<h1>Outdoor Spider</h1>
+	<div id="json" data-json = '{{json_data|safe}}' ></div>
 	{% block pagebody %}
 	{% endblock %}
 </body>
