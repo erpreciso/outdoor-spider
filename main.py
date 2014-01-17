@@ -84,9 +84,10 @@ class SpiderPage(MainHandler):
 
 class UserPage(MainHandler):
     def get(self):
+        data = get_origins_from_objects(get_objects_from_blobstore(PointPair))
         self.render(
                     "userbody.html",
-                    json_data = start_list(),
+                    json_data = transform_list_in_json("origins", data),
                     js_link = "user",
                     )
 class PostDistance(MainHandler):
@@ -110,13 +111,40 @@ class PostDistance(MainHandler):
                 p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
                 p.put()
 
-def start_list():
-    q = PointPair.query()
+def get_objects_from_blobstore(clss):
+    """return list of objects in blobstore, or none.
+    
+    Given the Object class, return the list of all entities,
+    or none of no entities found.
+    
+    """
+    assert type(clss) == ndb.model.MetaModel
+    q = clss.query()
     if q.get():
         return [x for x in q]
     else:
-        return False
+        return None
 
+def nodup(ls):
+    """return a list with all removed dups."""
+    assert type(ls) == list
+    res = []
+    for e in ls:
+        if e not in res:
+            res.append(e)
+    return res
+        
+def get_origins_from_objects(obj_list):
+    """return all start points of the object list passed."""
+    assert type(obj_list) == list
+    return nodup([obj.start_point for obj in obj_list])
+
+def transform_list_in_json(key, value_list):
+    """transform list provided in json format"""
+    assert type(key) == str
+    assert type(value_list) == list
+    return json.dumps({key : value_list})
+    
 JSO = """
 {
     u'originAddresses': [u'Milan, Italy'],
