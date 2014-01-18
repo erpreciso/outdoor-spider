@@ -79,16 +79,6 @@ def get_destination_list_from(origin):
     """return list all destination from given origin."""
     global mdict
     return [x.keys()[0] for x in mdict[origin]]
-
-class PointPair(ndb.Model):
-    blob = ndb.BlobKeyProperty()
-    start_point = ndb.StringProperty()
-    end_point = ndb.StringProperty()
-    status = ndb.StringProperty()
-    distance_value = ndb.IntegerProperty()
-    distance_text = ndb.StringProperty()
-    duration_value = ndb.IntegerProperty()
-    duration_text = ndb.StringProperty()
     
 class MainHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -116,14 +106,9 @@ class SpiderPage(MainHandler):
 
 class UserPage(MainHandler):
     def get(self):
-        objs = get_objects_from_blobstore(PointPair)
-        if objs is not None:
-            data = get_origins_from_objects(objs)
-        else:
-            data = []
         self.render(
                     "userbody.html",
-                    json_data = transform_list_in_json("origins", data),
+                    json_data = transform_list_in_json("origins", get_origin_list()),
                     js_link = "user",
                     )
 
@@ -155,49 +140,7 @@ class PostDistance(MainHandler):
                     }
                 put_destination_in_dict(origin, destination, travel_info)
 
-        #~ put the results in the blobstore
-        #~ origin = len(js['originAddresses'])
-        #~ destination = len(js['destinationAddresses'])
-        #~ for i in range(origin):
-            #~ for j in range(destination):
-                #~ p = PointPair()
-                #~ p.start_point = js['originAddresses'][i]
-                #~ p.end_point = js['destinationAddresses'][j]
-                #~ p.status = js['rows'][i]['elements'][j]['status']
-                #~ p.distance_value = js['rows'][i]['elements'][j]['distance']['value']
-                #~ p.distance_text = js['rows'][i]['elements'][j]['distance']['text']
-                #~ p.duration_value = js['rows'][i]['elements'][j]['duration']['value']
-                #~ p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
-                #~ p.put()
         self.redirect('/user')
-
-def get_objects_from_blobstore(clss):
-    """return list of objects in blobstore, or none.
-    
-    Given the Object class, return the list of all entities,
-    or none of no entities found.
-    
-    """
-    assert type(clss) == ndb.model.MetaModel
-    q = clss.query()
-    if q.get():
-        return [x for x in q]
-    else:
-        return None
-
-def nodup(ls):
-    """return a list with all removed dups."""
-    assert type(ls) == list
-    res = []
-    for e in ls:
-        if e not in res:
-            res.append(e)
-    return res
-        
-def get_origins_from_objects(obj_list):
-    """return all start points of the object list passed."""
-    assert type(obj_list) == list
-    return nodup([obj.start_point for obj in obj_list])
 
 def transform_list_in_json(key, value_list):
     """transform list provided in json format"""
@@ -215,19 +158,6 @@ JSO = """
             {u'status': u'OK', u'duration': {u'text': u'1 hour 46 mins', u'value': 6346}, u'distance': {u'text': u'147 km', u'value': 146658}}
         ]}]
 }"""
-
-"""test
-origine
-    destinazione
-        distanza
-            testo
-            valore
-        durata
-            testo
-            valore
-
-
-"""
 
 app = webapp2.WSGIApplication([
     ('/spider', SpiderPage),
