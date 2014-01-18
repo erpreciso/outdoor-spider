@@ -16,7 +16,7 @@ function print_origins_list(){
 	// create html
 	if (origins.length > 0){    // check of origins list has been provided
 		var html = "Select a starting point for your trip -->   ";
-		html += "<select>";
+		html += "<select id='start_city'>";
 		for (i = 0; i < origins.length; i++){
 			html += "<option>" + origins[i] + "</option>";
 		}
@@ -33,7 +33,7 @@ function print_origins_list(){
 function print_textbox_distance_request(){
 	var html = "<br>";
 	html += "Insert the distance to cover -->     ";
-	html += "<input type='text' />";
+	html += "<input id='distance' type='text' />";
 	$("#dropdown").append(html);
 }
 
@@ -44,8 +44,25 @@ function print_go_button(){
 	$("#go").on("click", calculate_web);
 }
 
+function get_user_input(){
+	var start = $("#start_city").val();
+	var distance = $("#distance").val();
+	return [start, distance];
+}
+
 function calculate_web(){
-	// main function to calculate from json where the user can go
-	// TODO
-	alert("hit");
+	
+	// get user input
+	var inp = get_user_input();
+	
+	// push to the app engine
+	var q = {"distance": inp[1], "start": inp[0]};
+	$.ajax({
+		url: '/query',
+		type: 'POST',
+		data: JSON.stringify(q),
+		//~ data: q,
+		contentType: 'application/json; charset=UTF-8',
+		dataType: 'json',
+	});
 }

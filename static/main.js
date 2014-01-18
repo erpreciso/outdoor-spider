@@ -98,34 +98,6 @@ function initialize_map(mapcenter) {
         directions.setMap(map);
     }
 }
-      
-function get_user_input(){
-	// return an object containing all user's string inputed
-    var user = new Object();
-    var lat = $("#user_lat").val();
-    var lng = $("#user_lng").val();
-    var addr = $("#user_address").val();
-    var dir1 = $("#user_direction_address_1").val();
-    var dir2 = $("#user_direction_address_2").val();
-    if (dir1 != "" && dir2 != "") {
-        user.input_type = "direction";
-        user.start = dir1;
-        user.end = dir2;
-    }
-    else if (addr != "") {
-        user.input_type = "address";
-        user.address = addr;
-    }
-    else if (lat != "" && lng != "") {
-        user.input_type = "latlng";
-        user.latitude = lat;
-        user.longitude = lng;
-    }
-    else {
-        user.input_type = "nothing";
-    }
-    return user;
-}
 
 function get_directions(start, end) {
     var directionsService = new google.maps.DirectionsService();

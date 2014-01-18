@@ -57,6 +57,29 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
         autoescape = True)
 
+mdict = {}
+
+def put_origin_in_dict(origin):
+    global mdict
+    if origin not in mdict:
+        mdict[origin] = []
+
+def put_destination_in_dict(origin, destination, travel_info):
+    assert type(travel_info) == dict
+    global mdict
+    assert origin in mdict
+    mdict[origin].append({destination: travel_info})
+
+def get_origin_list():
+    """return list of all origins."""
+    global mdict
+    return mdict.keys()
+
+def get_destination_list_from(origin):
+    """return list all destination from given origin."""
+    global mdict
+    return [x.keys()[0] for x in mdict[origin]]
+
 class PointPair(ndb.Model):
     blob = ndb.BlobKeyProperty()
     start_point = ndb.StringProperty()
@@ -66,11 +89,6 @@ class PointPair(ndb.Model):
     distance_text = ndb.StringProperty()
     duration_value = ndb.IntegerProperty()
     duration_text = ndb.StringProperty()
-    
-def json_city_lists():
-    f = "city-list.txt"
-    origins, destinations = m.split_city_list(m.list_from_file(f))
-    return json.dumps({"origins" : origins, "destinations" : destinations})
     
 class MainHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -82,6 +100,11 @@ class MainHandler(webapp2.RequestHandler):
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
+
+def json_city_lists():
+    f = "city-list.txt"
+    origins, destinations = m.split_city_list(m.list_from_file(f))
+    return json.dumps({"origins" : origins, "destinations" : destinations})
 
 class SpiderPage(MainHandler):
     def get(self):
@@ -103,26 +126,49 @@ class UserPage(MainHandler):
                     json_data = transform_list_in_json("origins", data),
                     js_link = "user",
                     )
-class PostDistance(MainHandler):
+
+class QueryPage(MainHandler):
     def post(self):
-        
         #~ load json object coming from js ajax
         js = json.loads(self.request.body)
+        logging.info(type(js))
+        logging.info(js)
         
+class PostDistance(MainHandler):
+    def post(self):
+        #~ load json object coming from js ajax
+        js = json.loads(self.request.body)
+        #~ put the result in the dict
+        global mdict
+        origins = len(js['originAddresses'])
+        destinations = len(js['destinationAddresses'])
+        for i in range(origins):
+            origin = js['originAddresses'][i]
+            put_origin_in_dict(origin)
+            for j in range(destinations):
+                destination = js['destinationAddresses'][j]
+                travel_info = {
+                    "distance_value": js['rows'][i]['elements'][j]['distance']['value'],
+                    "distance_text": js['rows'][i]['elements'][j]['distance']['text'],
+                    "duration_value": js['rows'][i]['elements'][j]['duration']['value'],
+                    "duration_text": js['rows'][i]['elements'][j]['duration']['text'],
+                    }
+                put_destination_in_dict(origin, destination, travel_info)
+
         #~ put the results in the blobstore
-        origin = len(js['originAddresses'])
-        destination = len(js['destinationAddresses'])
-        for i in range(origin):
-            for j in range(destination):
-                p = PointPair()
-                p.start_point = js['originAddresses'][i]
-                p.end_point = js['destinationAddresses'][j]
-                p.status = js['rows'][i]['elements'][j]['status']
-                p.distance_value = js['rows'][i]['elements'][j]['distance']['value']
-                p.distance_text = js['rows'][i]['elements'][j]['distance']['text']
-                p.duration_value = js['rows'][i]['elements'][j]['duration']['value']
-                p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
-                p.put()
+        #~ origin = len(js['originAddresses'])
+        #~ destination = len(js['destinationAddresses'])
+        #~ for i in range(origin):
+            #~ for j in range(destination):
+                #~ p = PointPair()
+                #~ p.start_point = js['originAddresses'][i]
+                #~ p.end_point = js['destinationAddresses'][j]
+                #~ p.status = js['rows'][i]['elements'][j]['status']
+                #~ p.distance_value = js['rows'][i]['elements'][j]['distance']['value']
+                #~ p.distance_text = js['rows'][i]['elements'][j]['distance']['text']
+                #~ p.duration_value = js['rows'][i]['elements'][j]['duration']['value']
+                #~ p.duration_text = js['rows'][i]['elements'][j]['duration']['text']
+                #~ p.put()
         self.redirect('/user')
 
 def get_objects_from_blobstore(clss):
@@ -170,8 +216,22 @@ JSO = """
         ]}]
 }"""
 
+"""test
+origine
+    destinazione
+        distanza
+            testo
+            valore
+        durata
+            testo
+            valore
+
+
+"""
+
 app = webapp2.WSGIApplication([
     ('/spider', SpiderPage),
     ('/post_distance', PostDistance),
     ('/user', UserPage),
+    ('/query', QueryPage),
 ], debug=True)

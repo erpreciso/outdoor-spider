@@ -48,9 +48,6 @@ def split_city_list(ls):
     assert len(origins) > 0
     assert len(destinations) > 0
     return origins, destinations
-    
-
-print split_city_list(list_from_file("city-list.txt"))
 
 def write_row_to_file(row, file_name):
     assert type(file_name) == str
@@ -63,8 +60,6 @@ def write_json_to_file(jso, file_name):
     f = open(file_name, 'w')
     json.dump(jso, f)
     
-# print create_html_list("city-list-start",list_from_file("city-list.txt"))
-
 def dict_from_list(list):
     """return a dict from a parsed list.
     'input_list' is a fixed and repetitive structure: 
@@ -89,6 +84,4 @@ def dict_from_list(list):
             insert_destination(origin, destination, distance)
     return dict
 
-#~ inp = [u'"Milan, Italy","Trento, Italy",223165', u'"Milan, Italy","Venice, Italy",269451', u'"Milan, Italy","Finale Ligure Savona, Italy",197285', u'"Turin, Italy","Trento, Italy",356812', u'"Turin, Italy","Venice, Italy",403098', u'"Turin, Italy","Finale Ligure Savona, Italy",160435', u'"Busto Arsizio Varese, Italy","Trento, Italy",248262', u'"Busto Arsizio Varese, Italy","Venice, Italy",294549', u'"Busto Arsizio Varese, Italy","Finale Ligure Savona, Italy",224160']
-#~ print dict_from_list(inp)
 
