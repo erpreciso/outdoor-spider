@@ -21,33 +21,38 @@ function print_origins_list(){
 			html += "<option>" + origins[i] + "</option>";
 		}
 		html += "</select>";
-		$("#dropdown").append(html);
+		$("#dbody").append(html);
 		print_textbox_distance_request();
 		print_go_button();
 	}
 	else {
-		$("#dropdown").append("No origins list provided from app");
+		$("#dbody").append("No origins list provided from app");
 	}
 }
 
 function print_textbox_distance_request(){
 	var html = "<br>";
-	html += "Insert the distance to cover -->     ";
+	html += "Insert the distance to cover in km -->     ";
 	html += "<input id='distance' type='text' />";
-	$("#dropdown").append(html);
+	html += "<br>Insert the tolerance of the research in km -->     ";
+	html += "<input id='tolerance' type='text' />";
+	$("#dbody").append(html);
 }
 
 function print_go_button(){
 	var html = "<br>";
 	html += "<button id='go'>let me see where I can go</button>";
-	$("#dropdown").append(html);
+	$("#dbody").append(html);
 	$("#go").on("click", calculate_web);
 }
 
 function get_user_input(){
 	var start = $("#start_city").val();
 	var distance = $("#distance").val();
-	return [start, distance];
+	var tolerance = $("#tolerance").val();
+	distance = distance * 1000;   // transforms km inserted in meters
+	tolerance = tolerance * 1000;
+	return [start, distance, tolerance];
 }
 
 function calculate_web(){
@@ -56,13 +61,30 @@ function calculate_web(){
 	var inp = get_user_input();
 	
 	// push to the app engine
-	var q = {"distance": inp[1], "start": inp[0]};
+	var q = {
+			"start": inp[0],
+			"distance": inp[1],
+			"tolerance": inp[2]
+			};
 	$.ajax({
 		url: '/query',
 		type: 'POST',
 		data: JSON.stringify(q),
 		//~ data: q,
 		contentType: 'application/json; charset=UTF-8',
-		dataType: 'json',
-	});
+		dataType: 'json'
+	}).done(function(data){append_result(data);});
 }
+
+function append_result(data){
+	var res = data.near;
+	var html = "<ul>"
+	for (i = 0;i < res.length; i++){
+		var name = res[i][0];
+		var dist = res[i][1] / 1000;
+		html += "<li>" + name + " is " + dist.toFixed(0) + " km far away</li>";
+		}
+	html += "</ul>"
+	$("#dbody").append(html);
+	}
+	

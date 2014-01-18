@@ -3,6 +3,17 @@
 #
 #    OUTDOOR-SPIDER app
 #
+# TESTS AND NOTES AREA
+JSO = """
+{
+    u'originAddresses': [u'Milan, Italy'],
+    u'destinationAddresses': [u'Trento, Italy', u'Genoa, Italy'], 
+    u'rows':[
+        {u'elements': [
+            {u'status': u'OK', u'duration': {u'text': u'2 hours 23 mins', u'value': 8558}, u'distance': {u'text': u'223 km', u'value': 223165}}, 
+            {u'status': u'OK', u'duration': {u'text': u'1 hour 46 mins', u'value': 6346}, u'distance': {u'text': u'147 km', u'value': 146658}}
+        ]}]
+}"""
 
 TODO = """
 
@@ -42,6 +53,8 @@ TODO interfaccia utente per interrogare il blobstore, visualizzando poi la
      mappa con la ragnatela, la matrice delle distanze etc.
 """
 
+# ----------------------------------------------------------------------------
+
 import webapp2
 import jinja2
 import os
@@ -53,22 +66,38 @@ import support_function as m
 from google.appengine.ext import ndb, blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-        autoescape = True)
+# ----------------------------------------------------------------------------
+# DICTIONARY HANDLERS
 
 mdict = {}
+mdict_test = {u'Milan, Italy': 
+            {
+            u'Trento, Italy': 
+                {'distance_text': u'223 km', 'duration_text': u'2 hours 23 mins', 'duration_value': 8558, 'distance_value': 223165}, 
+            u'Genoa, Italy': 
+                {'distance_text': u'147 km', 'duration_text': u'1 hour 46 mins', 'duration_value': 6346, 'distance_value': 146658}
+            }, 
+        u'Pavia, Italy': 
+            {
+            u'Trento, Italy': 
+                {'distance_text': u'256 km', 'duration_text': u'2 hours 41 mins', 'duration_value': 9683, 'distance_value': 255555}, 
+            u'Genoa, Italy': 
+                {'distance_text': u'131 km', 'duration_text': u'1 hour 32 mins', 'duration_value': 5533, 'distance_value': 131360}
+            }
+        }
+
+
 
 def put_origin_in_dict(origin):
     global mdict
-    if origin not in mdict:
-        mdict[origin] = []
+    if origin not in mdict.keys():
+        mdict[origin] = {}
 
 def put_destination_in_dict(origin, destination, travel_info):
     assert type(travel_info) == dict
     global mdict
     assert origin in mdict
-    mdict[origin].append({destination: travel_info})
+    mdict[origin][destination] = travel_info
 
 def get_origin_list():
     """return list of all origins."""
@@ -78,8 +107,47 @@ def get_origin_list():
 def get_destination_list_from(origin):
     """return list all destination from given origin."""
     global mdict
-    return [x.keys()[0] for x in mdict[origin]]
+    return mdict[origin].keys()
+
+def get_destinations_from_origin_given_distance(origin, distance, tolerance):
+    """get a dict with destination, distance, duration from here
+    recast it to have distance: destinations
+    select ones within distance and tolerance provided
+    return that.
     
+    """
+    global mdict
+    destinations = get_destination_list_from(origin)
+    assert len(destinations) > 0
+    # creates the distance dict
+    dist = {}
+    for destination in destinations:
+        d = mdict[origin][destination]['distance_value']
+        dist[d] = destination
+    # return only those in scope
+    mn, mx = distance - tolerance, distance + tolerance
+    return [(dist[d], d) for d in dist.keys() if d > mn and d < mx] 
+    
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# OTHER FUNCTIONS
+
+def transform_list_in_json(key, value_list):
+    """transform list provided in json format"""
+    assert type(key) == str
+    assert type(value_list) == list
+    return json.dumps({key : value_list})
+ 
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# PAGES HANDLERS
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+        autoescape = True)
+
 class MainHandler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -116,9 +184,16 @@ class QueryPage(MainHandler):
     def post(self):
         #~ load json object coming from js ajax
         js = json.loads(self.request.body)
-        logging.info(type(js))
-        logging.info(js)
-        
+        # calculates near cities
+        near = get_destinations_from_origin_given_distance(
+                js['start'],
+                int(js['distance']),
+                int(js['tolerance']),
+                )
+        logging.info(near)
+        logging.info(mdict)
+        self.response.out.write(transform_list_in_json("near", near))
+
 class PostDistance(MainHandler):
     def post(self):
         #~ load json object coming from js ajax
@@ -139,25 +214,7 @@ class PostDistance(MainHandler):
                     "duration_text": js['rows'][i]['elements'][j]['duration']['text'],
                     }
                 put_destination_in_dict(origin, destination, travel_info)
-
-        self.redirect('/user')
-
-def transform_list_in_json(key, value_list):
-    """transform list provided in json format"""
-    assert type(key) == str
-    assert type(value_list) == list
-    return json.dumps({key : value_list})
-    
-JSO = """
-{
-    u'originAddresses': [u'Milan, Italy'],
-    u'destinationAddresses': [u'Trento, Italy', u'Genoa, Italy'], 
-    u'rows':[
-        {u'elements': [
-            {u'status': u'OK', u'duration': {u'text': u'2 hours 23 mins', u'value': 8558}, u'distance': {u'text': u'223 km', u'value': 223165}}, 
-            {u'status': u'OK', u'duration': {u'text': u'1 hour 46 mins', u'value': 6346}, u'distance': {u'text': u'147 km', u'value': 146658}}
-        ]}]
-}"""
+        self.response.out.write(transform_list_in_json("result", ["OK"]))
 
 app = webapp2.WSGIApplication([
     ('/spider', SpiderPage),
@@ -165,3 +222,5 @@ app = webapp2.WSGIApplication([
     ('/user', UserPage),
     ('/query', QueryPage),
 ], debug=True)
+
+# ----------------------------------------------------------------------------

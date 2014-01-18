@@ -1,7 +1,21 @@
 START
 Milano
 Pavia
-END
 Trento
+Roma
+Torino
+Rimini
 Genova
+Napoli
+Agrigento
+END
+Milano
+Pavia
+Trento
+Roma
+Torino
+Rimini
+Genova
+Napoli
+Agrigento
 

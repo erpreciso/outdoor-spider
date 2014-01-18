@@ -31,7 +31,7 @@ function calc_distance_callback(response, status) {
 			data: JSON.stringify(response),
 			contentType: 'application/json; charset=UTF-8',
 			dataType: 'json',
-		});
+		}).done(function(data){alert(data.result);});
 	}
 	else {
 		// if the request was not satisfied by google maps
