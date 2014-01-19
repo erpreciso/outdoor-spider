@@ -2,7 +2,19 @@
 $(window).ready(function(){
 	$("#display_html").on("click", display_html);
 	$("#go_distance").on("click", calc_distance);
+	print_cities_list();
 	});
+
+function print_cities_list(){
+	// extract json from html
+	var js = $("#json").data("json");
+	var cities = js.cities;
+	var html = "<ul>";
+	for (var i = 0; i < cities.length; i++){
+		html += "<li>" + cities[i] + "</li>";
+	}
+	$("#list").append(html);
+}
 
 function calc_distance(){
 	// extract json from html
