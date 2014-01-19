@@ -1,43 +1,8 @@
 
 $(window).ready(function(){
 	$("#display_html").on("click", display_html);
-	$("#go_distance").on("click", calc_geocoding);
+	$("#go_distance").on("click", calc_distance);
 	});
-
-
-
-
-function calc_geocoding(){
-	// extract json from html
-	var js = $("#json").data("json");
-	var cities = js.cities
-	var geocoder = new google.maps.Geocoder();
-	for (var i = 0; i < cities.length; i++){
-		geocoder.geocode({'address': cities[i]}, function(results, status){
-			if (status == google.maps.GeocoderStatus.OK) {
-				//~ alert(results[0].geometry.location);
-				// push the response to the app engine
-				$.ajax({
-					url: '/post_geocoding',
-					type: 'POST',
-					data: JSON.stringify(results),
-					contentType: 'application/json; charset=UTF-8',
-					dataType: 'json',
-				}).done(function(data){	// print results in html
-					//~ var html = "Result of the DISTANCE request was ";
-					//~ html += data.distance_result;
-					//~ $("#result").append(html);
-					
-					});
-			}
-			else {
-				alert('Geocode was not successful: ' + status);
-			}
-		});
-	}
-	alert("hit");
-	calc_distance();
-}
 
 function calc_distance(){
 	// extract json from html
