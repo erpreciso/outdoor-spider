@@ -17,37 +17,16 @@ JSO = """
 
 TODO = """
 
-DONE
-    GET '/'
-    1. PY carica text file - "START" e poi lista di città, "END" e poi 
-       lista di città
-      a. funzione che importa la lista, e poi la splitta nelle due usando la 
-         parola chiave
-    2. stampa la pagina web inserendo un oggetto json nell'html tramite 
-       l'attributo 'data-', trasformando le liste in liste html leggibili e con 
-       un pulsante "GO"
-       a. funzione che trasforma la lista in oggetto json
-       b. funzione che crea il codice html contenente l'attributo 'data'
-       c. jinja2 templates struttura, intestazioni, dati
-    3. JS carica l'oggetto json (o la lista html) e manda la richiesta a Google 
-       Maps
-       a. Google ritorna un oggetto json come risposta
-       b. l'oggetto viene inviato come POST a '/get_distance_matrix', e stampato 
-          in html come conoscenza
-    POST '/get_distance_matrix'
-    4. PY carica il dato arrivato col POST in un oggetto json, e lo carica in 
-       memoria nel blobstore
 PRIO 1
-TODO crea funzione che prende quanto inserito dall'utente, e crea richiesta 
-    ajax quando l'user schiaccia GO, che interroga il blobstore
-
-PRIO 2
-TODO per ogni città della lista, inviare la richiesta per il geocoding e 
-     salvare anche questi in blobstore
+TODO per ogni città della lista, inviare la richiesta per il geocoding
+     - carica lista di città da txt
+     - per ogni città manda richiesta geocoding
+     - salva questa risposta in dizionario
+     - manda richiesta distanze
+     - salva anche questa nel dizionario
      
-TODO migliora le scritture nel blobstore
-     -- implementa memcache
-     -- evita di scrivere duplicati
+TODO fai in modo che la lista sia una sola e che le richieste vadano tutti 
+     con tutti
      
 TODO interfaccia utente per interrogare il blobstore, visualizzando poi la 
      mappa con la ragnatela, la matrice delle distanze etc.
@@ -69,45 +48,28 @@ from google.appengine.ext.webapp import blobstore_handlers
 # ----------------------------------------------------------------------------
 # DICTIONARY HANDLERS
 
-mdict = {}
-mdict_test = {u'Milan, Italy': 
-            {
-            u'Trento, Italy': 
-                {'distance_text': u'223 km', 'duration_text': u'2 hours 23 mins', 'duration_value': 8558, 'distance_value': 223165}, 
-            u'Genoa, Italy': 
-                {'distance_text': u'147 km', 'duration_text': u'1 hour 46 mins', 'duration_value': 6346, 'distance_value': 146658}
-            }, 
-        u'Pavia, Italy': 
-            {
-            u'Trento, Italy': 
-                {'distance_text': u'256 km', 'duration_text': u'2 hours 41 mins', 'duration_value': 9683, 'distance_value': 255555}, 
-            u'Genoa, Italy': 
-                {'distance_text': u'131 km', 'duration_text': u'1 hour 32 mins', 'duration_value': 5533, 'distance_value': 131360}
-            }
-        }
-
-
+mdict = {"distance":{}, "geocoding": {}}
 
 def put_origin_in_dict(origin):
     global mdict
-    if origin not in mdict.keys():
-        mdict[origin] = {}
+    if origin not in get_origin_list():
+        mdict["distance"][origin] = {}
 
 def put_destination_in_dict(origin, destination, travel_info):
     assert type(travel_info) == dict
     global mdict
-    assert origin in mdict
-    mdict[origin][destination] = travel_info
+    assert origin in mdict["distance"]
+    mdict["distance"][origin][destination] = travel_info
 
 def get_origin_list():
     """return list of all origins."""
     global mdict
-    return mdict.keys()
+    return mdict["distance"].keys()
 
 def get_destination_list_from(origin):
     """return list all destination from given origin."""
     global mdict
-    return mdict[origin].keys()
+    return mdict["distance"][origin].keys()
 
 def get_destinations_from_origin_given_distance(origin, distance, tolerance):
     """get a dict with destination, distance, duration from here
@@ -122,7 +84,7 @@ def get_destinations_from_origin_given_distance(origin, distance, tolerance):
     # creates the distance dict
     dist = {}
     for destination in destinations:
-        d = mdict[origin][destination]['distance_value']
+        d = mdict["distance"][origin][destination]['distance_value']
         dist[d] = destination
     # return only those in scope
     mn, mx = distance - tolerance, distance + tolerance
@@ -162,14 +124,16 @@ class MainHandler(webapp2.RequestHandler):
 def json_city_lists():
     f = "city-list.txt"
     origins, destinations = m.split_city_list(m.list_from_file(f))
-    return json.dumps({"origins" : origins, "destinations" : destinations})
+    #~ TODO risistema funzione in modo da caricare unica lista
+    cities = origins + destinations
+    return json.dumps({"cities" : cities})
 
 class SpiderPage(MainHandler):
     def get(self):
         self.render(
                    "spiderbody.html",
                    json_data = json_city_lists(),
-                   js_link = "main",
+                   js_link = "spider",
                    )
 
 class UserPage(MainHandler):
@@ -194,6 +158,12 @@ class QueryPage(MainHandler):
         logging.info(mdict)
         self.response.out.write(transform_list_in_json("near", near))
 
+class PostGeocoding(MainHandler):
+    def post(self):
+        #~ load json object coming from js ajax
+        js = json.loads(self.request.body)
+        logging.info(str(js))
+
 class PostDistance(MainHandler):
     def post(self):
         #~ load json object coming from js ajax
@@ -214,11 +184,12 @@ class PostDistance(MainHandler):
                     "duration_text": js['rows'][i]['elements'][j]['duration']['text'],
                     }
                 put_destination_in_dict(origin, destination, travel_info)
-        self.response.out.write(transform_list_in_json("result", ["OK"]))
+        self.response.out.write(transform_list_in_json("distance_result", ["OK"]))
 
 app = webapp2.WSGIApplication([
     ('/spider', SpiderPage),
     ('/post_distance', PostDistance),
+    ('/post_geocoding', PostGeocoding),
     ('/user', UserPage),
     ('/query', QueryPage),
 ], debug=True)

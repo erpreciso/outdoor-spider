@@ -1,13 +1,43 @@
 
 $(window).ready(function(){
 	$("#display_html").on("click", display_html);
-	$("#go_distance").on("click", calc_distance);
+	$("#go_distance").on("click", calc_geocoding);
 	});
 
 
-function display_html(){
-	alert($("body").html());
+
+
+function calc_geocoding(){
+	// extract json from html
+	var js = $("#json").data("json");
+	var cities = js.cities
+	var geocoder = new google.maps.Geocoder();
+	for (var i = 0; i < cities.length; i++){
+		geocoder.geocode({'address': cities[i]}, function(results, status){
+			if (status == google.maps.GeocoderStatus.OK) {
+				alert(results[0].geometry.location);
+				// push the response to the app engine
+				$.ajax({
+					url: '/post_geocoding',
+					type: 'POST',
+					data: JSON.stringify(results),
+					contentType: 'application/json; charset=UTF-8',
+					dataType: 'json',
+				}).done(function(data){	// print results in html
+					//~ var html = "Result of the DISTANCE request was ";
+					//~ html += data.distance_result;
+					//~ $("#result").append(html);
+					
+					});
+			}
+			else {
+				alert('Geocode was not successful: ' + status);
+			}
+		});
 	}
+	alert("hit");
+	calc_distance();
+}
 
 function calc_distance(){
 	// extract json from html
@@ -16,8 +46,8 @@ function calc_distance(){
 	// create and send the google maps request, calling the callback
 	var distance_request = new google.maps.DistanceMatrixService();
 	distance_request.getDistanceMatrix({
-								origins: js.origins,
-								destinations: js.destinations,
+								origins: js.cities,
+								destinations: js.cities,
 								travelMode: google.maps.TravelMode.DRIVING,
 								}, calc_distance_callback);
 	}
@@ -31,7 +61,11 @@ function calc_distance_callback(response, status) {
 			data: JSON.stringify(response),
 			contentType: 'application/json; charset=UTF-8',
 			dataType: 'json',
-		}).done(function(data){alert(data.result);});
+		}).done(function(data){	// print results in html
+			var html = "Result of the DISTANCE request was ";
+			html += data.distance_result;
+			$("#result").append(html);
+			});
 	}
 	else {
 		// if the request was not satisfied by google maps
@@ -39,6 +73,7 @@ function calc_distance_callback(response, status) {
 						'for the following reason: ' + status);
     }
 }
+
 
 // all code below is to visualize the map, so need to be cleaned
 
@@ -113,29 +148,6 @@ function get_directions(start, end) {
     });
 }
 
-function get_distance(start, end) {
-	// send request for distance between two points start and end
-	// the callback function 'distance_callback' store the result 
-	// in the global var 'distance'
-    var distance_service = new google.maps.DistanceMatrixService();
-    distance_service.getDistanceMatrix(
-          {
-            origins: [start],
-            destinations: [end],
-            travelMode: google.maps.TravelMode.DRIVING,
-          }, distance_callback);
-}
-function distance_callback(response, status) {
-	// callback for the get_distance function
-    if (status == google.maps.DistanceMatrixStatus.OK) {
-        var origins = response.originAddresses;
-        var destinations = response.destinationAddresses;
-        var result = response.rows[0].elements[0];
-        distance = result.distance.text;
-        $("#user").append("<div>" + distance + "</div>");
-    }
-}
-
 function set_mapcenter_from_address(address) {
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode({'address' : address}, function (results, status) {
@@ -154,7 +166,6 @@ function set_mapcenter_from_address(address) {
 function set_mapcenter_from_values(latitude, longitude) {
     map_center = new google.maps.LatLng(latitude, longitude)
 }
-
 
 test_geocoding = {
    "results" : [
@@ -224,3 +235,7 @@ test_geocoding = {
    ],
    "status" : "OK"
 }
+
+function display_html(){
+	alert($("body").html());
+	}
