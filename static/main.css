@@ -5,21 +5,22 @@ body {
 	color:black;
 	height: 100%;
 	margin: 0;
-	padding: 0
+	padding: 0;
 	}
 h1 {
 	font-size: 1.2em;
 	font-weight: bold;
 	}
 
-#map-canvas {
-	height: 100%
+#canvas {
+	height: 100%;
 	}
 
 button {
 	font-family: inherit;
 	display: block;
 	}
+
 input {
 	display: inline;
 	}

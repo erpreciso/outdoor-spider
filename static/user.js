@@ -21,6 +21,12 @@ function print_origins_list(){
 			html += "<option>" + origins[i] + "</option>";
 		}
 		html += "</select>";
+		html += "TEMP Select a end point for your map -->   ";
+		html += "<select id='end_city'>";
+		for (i = 0; i < origins.length; i++){
+			html += "<option>" + origins[i] + "</option>";
+		}
+		html += "</select>";
 		$("#dbody").append(html);
 		print_textbox_distance_request();
 		print_go_button();
@@ -42,8 +48,12 @@ function print_textbox_distance_request(){
 function print_go_button(){
 	var html = "<br>";
 	html += "<button id='go'>let me see where I can go</button>";
+	html += "<button id='map-button'>display the map centered</button>";
+	html += "<button id='route-button'>display the directions</button>";
 	$("#dbody").append(html);
 	$("#go").on("click", calculate_web);
+	$("#map-button").on("click", create_map);
+	$("#route-button").on("click", visualize_route);
 }
 
 function get_user_input(){
@@ -87,4 +97,39 @@ function append_result(data){
 	html += "</ul>"
 	$("#dbody").append(html);
 	}
-	
+
+var map;
+
+function create_map(){
+	var center_city = $("#start_city").val();
+	var geocoder = new google.maps.Geocoder();
+	geocoder.geocode({"address": center_city}, function(results, status){
+		if (status == google.maps.GeocoderStatus.OK) {
+			var center = results[0].geometry.location;
+			var mapOptions = {
+				center: center,
+				zoom: 10
+			};
+			map = new google.maps.Map(document.getElementById("canvas"), mapOptions);
+		}
+		else {
+			alert("Geocode not successful: " + status);
+		}
+	});
+}
+
+function visualize_route(){
+	var directionsDisplay = new google.maps.DirectionsRenderer();
+	var directionsService = new google.maps.DirectionsService();
+	directionsDisplay.setMap(map);
+	var request = {
+      origin:$("#start_city").val(),
+      destination:$("#end_city").val(),
+      travelMode: google.maps.TravelMode.DRIVING
+	  };
+	  directionsService.route(request, function(response, status) {
+	    if (status == google.maps.DirectionsStatus.OK) {
+	      directionsDisplay.setDirections(response);
+	    }
+	  });
+}
