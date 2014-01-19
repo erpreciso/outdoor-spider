@@ -155,11 +155,16 @@ class PostDistance(MainHandler):
                 put_destination_in_dict(origin, destination, travel_info)
         self.response.out.write(transform_list_in_json("distance_result", ["OK"]))
 
+class ExportPage(MainHandler):
+    def get(self):
+        self.write(mdict)
+
 app = webapp2.WSGIApplication([
-    ('/spider', SpiderPage),
-    ('/post_distance', PostDistance),
-    ('/user', UserPage),
-    ('/query', QueryPage),
+    ("/spider", SpiderPage),
+    ("/post_distance", PostDistance),
+    ("/user", UserPage),
+    ("/query", QueryPage),
+    ("/print_mdict", ExportPage),
 ], debug=True)
 
 # ----------------------------------------------------------------------------
