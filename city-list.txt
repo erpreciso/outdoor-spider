@@ -1,6 +1,13 @@
 START
-Napoli
-Agrigento
+Milano
 END
 Roma
 Torino
+Trento
+Genova
+Aosta
+Bari
+Baceno
+Lecco
+Como
+
