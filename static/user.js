@@ -2,6 +2,7 @@
 $(window).ready(function(){
 	$("#display_html").on("click", display_html);
 	print_origins_list();
+	create_first_map();
 	});
 
 function display_html(){
@@ -21,13 +22,8 @@ function print_origins_list(){
 			html += "<option>" + origins[i] + "</option>";
 		}
 		html += "</select>";
-		html += "TEMP Select a end point for your map -->   ";
-		html += "<select id='end_city'>";
-		for (i = 0; i < origins.length; i++){
-			html += "<option>" + origins[i] + "</option>";
-		}
-		html += "</select>";
 		$("#dbody").append(html);
+		$("#start_city").change(center_map);
 		print_textbox_distance_request();
 		print_go_button();
 	}
@@ -48,12 +44,8 @@ function print_textbox_distance_request(){
 function print_go_button(){
 	var html = "<br>";
 	html += "<button id='go'>let me see where I can go</button>";
-	html += "<button id='map-button'>display the map centered</button>";
-	html += "<button id='route-button'>display the directions</button>";
 	$("#dbody").append(html);
 	$("#go").on("click", calculate_web);
-	$("#map-button").on("click", create_map);
-	$("#route-button").on("click", visualize_route);
 }
 
 function get_user_input(){
@@ -96,21 +88,26 @@ function append_result(data){
 		}
 	html += "</ul>"
 	$("#dbody").append(html);
+	draw_routes(res);
 	}
 
 var map;
 
-function create_map(){
-	var center_city = $("#start_city").val();
+function create_first_map(){
+	var map_options = {
+		center: new google.maps.LatLng(42.14, 12.8),
+		zoom: 6
+	};
+	map = new google.maps.Map(document.getElementById("canvas"), map_options);
+}
+
+function center_map(){
+	var new_center = $("#start_city").val();
 	var geocoder = new google.maps.Geocoder();
-	geocoder.geocode({"address": center_city}, function(results, status){
-		if (status == google.maps.GeocoderStatus.OK) {
-			var center = results[0].geometry.location;
-			var mapOptions = {
-				center: center,
-				zoom: 10
-			};
-			map = new google.maps.Map(document.getElementById("canvas"), mapOptions);
+	geocoder.geocode({"address": new_center}, function(results, status){
+		if (status == google.maps.GeocoderStatus.OK){
+			map.setCenter(results[0].geometry.location);
+			map.setZoom(10);
 		}
 		else {
 			alert("Geocode not successful: " + status);
@@ -118,18 +115,28 @@ function create_map(){
 	});
 }
 
-function visualize_route(){
-	var directionsDisplay = new google.maps.DirectionsRenderer();
+function draw_routes(cities){
+	var start = $("#start_city").val();
+	var rendererOptions = {
+	    preserveViewport: true,         
+	    suppressMarkers:true,
+	    routeIndex:i
+	};
 	var directionsService = new google.maps.DirectionsService();
-	directionsDisplay.setMap(map);
-	var request = {
-      origin:$("#start_city").val(),
-      destination:$("#end_city").val(),
-      travelMode: google.maps.TravelMode.DRIVING
-	  };
-	  directionsService.route(request, function(response, status) {
-	    if (status == google.maps.DirectionsStatus.OK) {
-	      directionsDisplay.setDirections(response);
-	    }
-	  });
+	for (var i = 0; i < cities.length; i++){
+		var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+		directionsDisplay.setMap(map);
+		
+		var end = cities[i][0];
+		var request = {
+			origin: start,
+			destination: end,
+			travelMode: google.maps.TravelMode.DRIVING
+		};
+		directionsService.route(request, function(response, status) {
+		    if (status == google.maps.DirectionsStatus.OK) {
+		      directionsDisplay.setDirections(response);
+		    }
+		  });
+	}
 }

@@ -8,7 +8,6 @@
 TODO = """
      
 TODO all'inserimento della città di partenza e dei km:
-     - disegna la mappa centrata
      - disegna le direzioni sulla mappa
 """
 
