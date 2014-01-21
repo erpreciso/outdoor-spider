@@ -116,27 +116,25 @@ function center_map(){
 }
 
 function draw_routes(cities){
-	var start = $("#start_city").val();
-	var rendererOptions = {
-	    preserveViewport: true,         
-	    suppressMarkers:true,
-	    routeIndex:i
-	};
+	function renderDirections(result){
+		var directionsRenderer = new google.maps.DirectionsRenderer({
+			suppressMarkers:true
+			});
+		directionsRenderer.setMap(map);
+		directionsRenderer.setDirections(result);
+	}
 	var directionsService = new google.maps.DirectionsService();
-	for (var i = 0; i < cities.length; i++){
-		var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
-		directionsDisplay.setMap(map);
-		
-		var end = cities[i][0];
-		var request = {
+	function requestDirections(start, end){
+		directionsService.route({
 			origin: start,
 			destination: end,
-			travelMode: google.maps.TravelMode.DRIVING
-		};
-		directionsService.route(request, function(response, status) {
-		    if (status == google.maps.DirectionsStatus.OK) {
-		      directionsDisplay.setDirections(response);
-		    }
-		  });
+			travelMode: google.maps.DirectionsTravelMode.DRIVING
+		}, function(result){
+			renderDirections(result);});
+	}			
+	var start = $("#start_city").val();
+	for (var i = 0; i < cities.length; i++){
+		var end = cities[i][0];
+		requestDirections(start, end);
 	}
 }
