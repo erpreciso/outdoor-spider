@@ -80,7 +80,8 @@ function calculate_web(){
 
 function append_result(data){
 	var res = data.near;
-	var html = "<ul>"
+	$("#results").remove();
+	var html = "<ul id='results'>"
 	for (i = 0;i < res.length; i++){
 		var name = res[i][0];
 		var dist = res[i][1] / 1000;
@@ -116,6 +117,7 @@ function center_map(){
 }
 
 function draw_routes(cities){
+	create_first_map();
 	function renderDirections(result){
 		var directionsRenderer = new google.maps.DirectionsRenderer({
 			suppressMarkers:true
